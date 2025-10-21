@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input"; 
 import { PROJECTS, PROJECT_CATEGORIES } from "@/constants";
 import { UniversalSort, projectSortOptions, SortOption } from "@/components/ui/universal-sort";
+import Image from "next/image";
 
 interface Project {
   id: number;
@@ -113,7 +114,7 @@ function ProjectsPageContent() {
   };
   
   return (
-      <main className="pt-20 relative">
+      <div className="pt-20 relative">
         <div className="container mx-auto px-4 mb-6">
           <Button
             onClick={() => router.push('/')}
@@ -217,12 +218,17 @@ function ProjectsPageContent() {
                     whileHover="hover"
                   >
                     <div className="relative aspect-video overflow-hidden">
-                      <motion.img 
+                      <motion.div
+                        className="w-full h-full"
+                        variants={imageVariants}
+                      >
+                      <Image 
                         src={project.image} 
                         alt={project.title}
-                        className="w-full h-full object-cover"
-                        variants={imageVariants}
+                        layout="fill"
+                        objectFit="cover"
                       />
+                      </motion.div>
                       <motion.div 
                         className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent flex flex-col justify-end p-4"
                         variants={overlayVariants}
@@ -343,7 +349,7 @@ function ProjectsPageContent() {
           <div className="absolute top-1/3 right-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl -z-10" />
           <div className="absolute bottom-1/4 left-0 w-80 h-80 rounded-full bg-primary/5 blur-3xl -z-10" />
         </section>
-      </main>
+      </div>
       
       <AnimatePresence>
         {selectedProject && (
@@ -364,15 +370,16 @@ function ProjectsPageContent() {
                 
                 <div className="mt-4">
                   <motion.div 
-                    className="rounded-lg overflow-hidden mb-6"
+                    className="rounded-lg overflow-hidden mb-6 relative aspect-video"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                   >
-                    <img 
+                    <Image 
                       src={selectedProject.image} 
                       alt={selectedProject.title}
-                      className="w-full h-auto object-cover"
+                      layout="fill"
+                      objectFit="cover"
                     />
                   </motion.div>
                   
