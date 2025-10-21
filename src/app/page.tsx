@@ -19,12 +19,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-  const [contentReady, setContentReady] = useState(false);
   const searchParams = useSearchParams();
-
-  // Determine if splash screen should be shown
   const showSplash = !searchParams.has('navigated');
+
+  const [loading, setLoading] = useState(showSplash);
+  const [contentReady, setContentReady] = useState(!showSplash);
 
   useEffect(() => {
     // Preload essential assets
@@ -60,7 +59,7 @@ export default function Home() {
   
   // Intersection Observer for fade-in animations
   useEffect(() => {
-    if (!loading) {
+    if (contentReady) {
       const fadeInSections = document.querySelectorAll('.fade-in-section');
       
       const observer = new IntersectionObserver((entries) => {
@@ -81,7 +80,7 @@ export default function Home() {
         });
       };
     }
-  }, [loading, contentReady]);
+  }, [contentReady]);
 
   // Stagger children animation
   const containerVariants = {
@@ -106,10 +105,12 @@ export default function Home() {
   
   return (
     <ThemeProvider>
-      {loading && showSplash ? (
-        <SplashScreen onComplete={handleSplashComplete} />
-      ) : (
-        <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div key="splash">
+            <SplashScreen onComplete={handleSplashComplete} />
+          </motion.div>
+        ) : (
           <motion.div
             key="content"
             initial={{ opacity: 0 }}
@@ -124,7 +125,7 @@ export default function Home() {
             <motion.div
               variants={containerVariants}
               initial="hidden"
-              animate={contentReady || !showSplash ? 'visible' : 'hidden'}
+              animate={contentReady ? 'visible' : 'hidden'}
               className="relative z-10"
             >
               <motion.div variants={itemVariants}>
@@ -199,8 +200,8 @@ export default function Home() {
               ))}
             </div>
           </motion.div>
-        </AnimatePresence>
-      )}
+        )}
+      </AnimatePresence>
     </ThemeProvider>
   );
 }

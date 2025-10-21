@@ -10,7 +10,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [showLogo, setShowLogo] = useState(false);
   const [logoEnlarged, setLogoEnlarged] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   
   useEffect(() => {
     let progressInterval: NodeJS.Timeout;
@@ -30,27 +29,20 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       const enlargeTimer = setTimeout(() => {
         setLogoEnlarged(true);
         const completeTimer = setTimeout(() => {
-            setIsVisible(false);
-        }, 1000);
+            onComplete();
+        }, 1000); // This should match the exit animation duration
         return () => clearTimeout(completeTimer);
       }, 1000);
       
       return () => clearTimeout(enlargeTimer);
     }
-  }, [showLogo]);
-
-  if (!isVisible) {
-      onComplete();
-      return null;
-  }
+  }, [showLogo, onComplete]);
   
   return (
-    <AnimatePresence>
-      {isVisible && (
       <motion.div
         className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-sunrise dark:bg-gradient-sunset overflow-hidden"
         initial={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        animate={{ opacity: logoEnlarged ? 0 : 1 }}
         transition={{ duration: 0.8, ease: "easeInOut" }}
       >
         {!logoEnlarged ? (
@@ -111,7 +103,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                     className="absolute inset-0 bg-white rounded-full origin-left"
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: progress / 100 }}
-                    transition={{ ease: "easeOut" }}
+                    transition={{ ease: "linear", duration: 0.1 }}
                   />
                 </div>
                 
@@ -160,8 +152,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           </div>
         </div>
       </motion.div>
-      )}
-    </AnimatePresence>
   );
 };
 
