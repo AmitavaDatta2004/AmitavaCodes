@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import SplashScreen from '@/components/SplashScreen';
 import Navbar from '@/components/Navbar';
@@ -18,12 +18,17 @@ import ParticlesBackground from '@/components/ParticlesBackground';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 
-export default function Home() {
+function HomeComponent() {
   const searchParams = useSearchParams();
   const showSplash = !searchParams.has('navigated');
 
   const [loading, setLoading] = useState(showSplash);
-  const [contentReady, setContentReady] = useState(!showSplash);
+
+  useEffect(() => {
+    if (!showSplash) {
+      setLoading(false);
+    }
+  }, [showSplash]);
 
   useEffect(() => {
     // Preload essential assets
@@ -51,15 +56,11 @@ export default function Home() {
   
   const handleSplashComplete = () => {
     setLoading(false);
-    // Small delay before showing content with animations
-    setTimeout(() => {
-      setContentReady(true);
-    }, 100);
   };
   
   // Intersection Observer for fade-in animations
   useEffect(() => {
-    if (contentReady) {
+    if (!loading) {
       const fadeInSections = document.querySelectorAll('.fade-in-section');
       
       const observer = new IntersectionObserver((entries) => {
@@ -80,7 +81,7 @@ export default function Home() {
         });
       };
     }
-  }, [contentReady]);
+  }, [loading]);
 
   // Stagger children animation
   const containerVariants = {
@@ -104,104 +105,113 @@ export default function Home() {
   };
   
   return (
-    <ThemeProvider>
-      <AnimatePresence mode="wait">
-        {loading ? (
-          <motion.div key="splash">
-            <SplashScreen onComplete={handleSplashComplete} />
-          </motion.div>
-        ) : (
+    <AnimatePresence mode="wait">
+      {loading ? (
+        <motion.div key="splash">
+          <SplashScreen onComplete={handleSplashComplete} />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full overflow-hidden"
+        >
+          <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background to-background pointer-events-none"></div>
+          <ParticlesBackground />
+          
           <motion.div
-            key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full overflow-hidden"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="relative z-10"
           >
-            <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background to-background pointer-events-none"></div>
-            <ParticlesBackground />
-            
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={contentReady ? 'visible' : 'hidden'}
-              className="relative z-10"
-            >
-              <motion.div variants={itemVariants}>
-                <Navbar />
-              </motion.div>
-              
-              <main>
-                <motion.div variants={itemVariants}>
-                  <HeroSection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <AboutSection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <SkillsSection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <ExperienceSection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <ProjectsSection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <TestimonialsSection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <AchievementsSection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <GallerySection />
-                </motion.div>
-                
-                <motion.div variants={itemVariants} className="fade-in-section">
-                  <ContactSection />
-                </motion.div>
-              </main>
-              
-              <motion.div variants={itemVariants}>
-                <Footer />
-              </motion.div>
+            <motion.div variants={itemVariants}>
+              <Navbar />
             </motion.div>
             
-            <div className="fixed inset-0 pointer-events-none overflow-hidden -z-5">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute rounded-full bg-gradient-to-r from-primary/5 to-accent/5 blur-[80px]"
-                  style={{
-                    width: `${Math.random() * 200 + 100}px`,
-                    height: `${Math.random() * 200 + 100}px`,
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                  }}
-                  animate={{
-                    x: [0, Math.random() * 30 - 15],
-                    y: [0, Math.random() * 30 - 15],
-                  }}
-                  transition={{
-                    duration: Math.random() * 10 + 20,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut"
-                  }}
-                />
-              ))}
-            </div>
+            <main>
+              <motion.div variants={itemVariants}>
+                <HeroSection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <AboutSection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <SkillsSection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <ExperienceSection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <ProjectsSection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <TestimonialsSection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <AchievementsSection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <GallerySection />
+              </motion.div>
+              
+              <motion.div variants={itemVariants} className="fade-in-section">
+                <ContactSection />
+              </motion.div>
+            </main>
+            
+            <motion.div variants={itemVariants}>
+              <Footer />
+            </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </ThemeProvider>
+          
+          <div className="fixed inset-0 pointer-events-none overflow-hidden -z-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-gradient-to-r from-primary/5 to-accent/5 blur-[80px]"
+                style={{
+                  width: `${Math.random() * 200 + 100}px`,
+                  height: `${Math.random() * 200 + 100}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  x: [0, Math.random() * 30 - 15],
+                  y: [0, Math.random() * 30 - 15],
+                }}
+                transition={{
+                  duration: Math.random() * 10 + 20,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut"
+                }}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
+}
+
+
+export default function Home() {
+    return (
+        <ThemeProvider>
+            <Suspense fallback={<div>Loading...</div>}>
+                <HomeComponent />
+            </Suspense>
+        </ThemeProvider>
+    );
 }
