@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
-import SplashScreen from '@/components/SplashScreen';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import AboutSection from '@/components/AboutSection';
@@ -15,37 +14,10 @@ import GallerySection from '@/components/GallerySection';
 import ContactSection from '@/components/ContactSection';
 import Footer from '@/components/Footer';
 import ParticlesBackground from '@/components/ParticlesBackground';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 function HomeComponent() {
-  const searchParams = useSearchParams();
-  const showSplash = !searchParams.has('navigated');
-
-  const [loading, setLoading] = useState(showSplash);
-
   useEffect(() => {
-    if (!showSplash) {
-      setLoading(false);
-    }
-  }, [showSplash]);
-
-  useEffect(() => {
-    // Preload essential assets
-    const preloadImages = () => {
-      const imagesToPreload: string[] = [
-        // Add critical images to preload here
-        '/AmitavaDatta.jpg'
-      ];
-      
-      imagesToPreload.forEach((src) => {
-        const img = new Image();
-        img.src = src;
-      });
-    };
-    
-    preloadImages();
-
     // Add a class to the body for enhanced gradient background in light mode
     document.body.classList.add('enhanced-light-bg');
     
@@ -54,13 +26,8 @@ function HomeComponent() {
     };
   }, []);
   
-  const handleSplashComplete = () => {
-    setLoading(false);
-  };
-  
   // Intersection Observer for fade-in animations
   useEffect(() => {
-    if (!loading) {
       const fadeInSections = document.querySelectorAll('.fade-in-section');
       
       const observer = new IntersectionObserver((entries) => {
@@ -80,8 +47,7 @@ function HomeComponent() {
           observer.unobserve(section);
         });
       };
-    }
-  }, [loading]);
+  }, []);
 
   // Stagger children animation
   const containerVariants = {
@@ -105,12 +71,6 @@ function HomeComponent() {
   };
   
   return (
-    <AnimatePresence mode="wait">
-      {loading ? (
-        <motion.div key="splash">
-          <SplashScreen onComplete={handleSplashComplete} />
-        </motion.div>
-      ) : (
         <motion.div
           key="content"
           initial={{ opacity: 0 }}
@@ -200,8 +160,6 @@ function HomeComponent() {
             ))}
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
 
