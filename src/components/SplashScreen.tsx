@@ -40,11 +40,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   }, [showLogo]);
 
   if (!isVisible) {
+      onComplete();
       return null;
   }
   
   return (
-    <AnimatePresence onExitComplete={onComplete}>
+    <AnimatePresence>
       {isVisible && (
       <motion.div
         className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-sunrise dark:bg-gradient-sunset overflow-hidden"
