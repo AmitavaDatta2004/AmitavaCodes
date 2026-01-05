@@ -114,6 +114,7 @@ function ProjectsPageContent() {
   };
   
   return (
+    <>
       <div className="pt-20 relative">
         <div className="container mx-auto px-4 mb-6">
           <Button
@@ -489,6 +490,7 @@ function ProjectsPageContent() {
           </Dialog>
         )}
       </AnimatePresence>
+      </>
   );
 }
 
